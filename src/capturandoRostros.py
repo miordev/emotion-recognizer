@@ -37,6 +37,7 @@ while True:
         count = count + 1
     cv2.imshow('frame',frame)
 
+    #Tecla esc para cerrar programa
     k =  cv2.waitKey(1)
     if k == 27 or count >= 200:
         break

@@ -2,13 +2,6 @@ import cv2
 import os
 import numpy as np
 
-# def emotionImage(emotion):
-#     # Emojis
-#     if emotion == 'Felicidad': image = cv2.imread('Emojis/felicidad.jpeg')
-#     if emotion == 'Enojo': image = cv2.imread('Emojis/enojo.jpeg')
-#     if emotion == 'Sorpresa': image = cv2.imread('Emojis/sorpresa.jpeg')
-#     if emotion == 'Tristeza': image = cv2.imread('Emojis/tristeza.jpeg')
-#     return image
 
 # ----------- Métodos usados para el entrenamiento y lectura del modelo ----------
 #method = 'EigenFaces'
@@ -53,9 +46,6 @@ while True:
             if result[1] < 5700:
                 cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
-                # image = emotionImage(imagePaths[result[0]])
-                # nFrame = cv2.hconcat([frame,image])
-                nFrame = cv2.hconcat([frame])
             else:
                 cv2.putText(frame,'No identificado',(x,y-20),2,0.8,(0,0,255),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,0,255),2)
@@ -66,9 +56,6 @@ while True:
             if result[1] < 500:
                 cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
-                # image = emotionImage(imagePaths[result[0]])
-                # nFrame = cv2.hconcat([frame,image])
-                nFrame = cv2.hconcat([frame])
             else:
                 cv2.putText(frame,'No identificado',(x,y-20),2,0.8,(0,0,255),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,0,255),2)
@@ -79,15 +66,12 @@ while True:
             if result[1] < 60:
                 cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
-                # image = emotionImage(imagePaths[result[0]])
-                # nFrame = cv2.hconcat([frame,image])
-                nFrame = cv2.hconcat([frame])
             else:
                 cv2.putText(frame,'No identificado',(x,y-20),2,0.8,(0,0,255),1,cv2.LINE_AA)
                 cv2.rectangle(frame, (x,y),(x+w,y+h),(0,0,255),2)
                 nFrame = cv2.hconcat([frame,np.zeros((480,300,3),dtype=np.uint8)])
 
-    cv2.imshow('nFrame',nFrame)
+    cv2.imshow('nFrame', frame)
     k = cv2.waitKey(1)
     if k == 27:
         break

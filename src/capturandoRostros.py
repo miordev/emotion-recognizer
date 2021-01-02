@@ -2,9 +2,10 @@ import cv2
 import os
 import imutils
 
-#emotionName = 'Enojo'
+#emotionName = 'Molesto'
 #emotionName = 'Felicidad'
 #emotionName = 'Sorpresa'
+#emotionName = 'Neutro'
 emotionName = 'Tristeza'
 
 dataPath = '../data' #Cambia a la ruta donde hayas almacenado Data

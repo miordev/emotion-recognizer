@@ -23,6 +23,7 @@ while True:
 
     ret, frame = cap.read()
     if ret == False: break
+    print("paso")
     frame =  imutils.resize(frame, width=640)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     auxFrame = frame.copy()

@@ -2,9 +2,10 @@ import cv2
 import os
 import imutils
 
-#emotionName = 'Enojo'
+#emotionName = 'Molesto'
 #emotionName = 'Felicidad'
 #emotionName = 'Sorpresa'
+#emotionName = 'Neutro'
 emotionName = 'Tristeza'
 
 dataPath = '../data' #Cambia a la ruta donde hayas almacenado Data
@@ -38,6 +39,7 @@ while True:
         count = count + 1
     cv2.imshow('frame',frame)
 
+    #Tecla esc para cerrar programa
     k =  cv2.waitKey(1)
     if k == 27 or count >= 200:
         break

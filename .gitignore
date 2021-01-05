@@ -2,6 +2,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,opencv,windows,linux,macos,virtualenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,opencv,windows,linux,macos,virtualenv
 
+data/
 ## Vs code
 .vscode/
 

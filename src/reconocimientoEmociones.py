@@ -17,7 +17,7 @@ def reconocimiento(method):
     emotion_recognizer = cv2.face.LBPHFaceRecognizer_create()
     NUMBER_RESULT = 60
 
-  emotion_recognizer.read('models/modelo'+method+'.xml')
+  emotion_recognizer.read('../models/modelo'+method+'.xml')
 
   # --------------------------------------------------------------------------------
   dataPath = '../data' #Cambia a la ruta donde hayas almacenado Data

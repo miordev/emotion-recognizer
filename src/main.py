@@ -1,4 +1,4 @@
-import entrenando, reconocimientoEmociones
+import reconocimientoEmociones
 
 METHOD = ''
 
@@ -16,10 +16,9 @@ def menu():
   if option_method == 3:
       METHOD = "FisherFaces"
   
-  entrenando.obtenerModelo(METHOD, entrenando.facesData, entrenando.labels)
+  # entrenando.obtenerModelo(METHOD, entrenando.facesData, entrenando.labels)
 
   reconocimientoEmociones.reconocimiento(METHOD)
-
 
 
 menu()

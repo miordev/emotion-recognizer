@@ -16,8 +16,10 @@ def obtenerModelo(method,facesData,labels):
   print("Tiempo de entrenamiento ( "+method+" ): ", tiempoEntrenamiento)
 
   # Almacenando el modelo obtenido
-  os.mkdir('models')
-  emotion_recognizer.write("models/modelo"+method+".xml")
+  if not os.path.exists('../models'):
+    os.mkdir('../models')
+    
+  emotion_recognizer.write("../models/modelo"+method+".xml")
 
 
 dataPath = '../data' #Cambia a la ruta donde hayas almacenado Data

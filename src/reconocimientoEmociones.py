@@ -2,62 +2,60 @@ import cv2
 import os
 import numpy as np
 
-def reconocimiento(method):
-  NUMBER_RESULT = 0
-  # ----------- Métodos usados para el entrenamiento y lectura del modelo ----------
-  print(f'método: {method}')
+import methods
+import emotions
+import paths
 
-  if method == 'EigenFaces': 
-    emotion_recognizer = cv2.face.EigenFaceRecognizer_create()
-    NUMBER_RESULT = 5700
-  if method == 'FisherFaces': 
-    emotion_recognizer = cv2.face.FisherFaceRecognizer_create()
-    NUMBER_RESULT = 500
-  if method == 'LBPH': 
-    emotion_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    NUMBER_RESULT = 60
+def load_model(method_name):
+  model = methods.get_emotion_recognizer(method_name)
+  specific_model_path = paths.MODELS_PATH + '/modelo' + method_name + '.xml'
+  model.read(specific_model_path)
+  return model
 
-  emotion_recognizer.read('../models/modelo'+method+'.xml')
+  
+def recognition(method_name):
+  print('Reconociendo ( ' + method_name + ' )...')
+  model = load_model(method_name)
+  limit = methods.get_limit_emotion_recognizer(method_name)
 
-  # --------------------------------------------------------------------------------
-  dataPath = '../data' #Cambia a la ruta donde hayas almacenado Data
-  imagePaths = os.listdir(dataPath)
-  print('imagePaths=',imagePaths)
+  # Cámara por defecto
+  camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+  # Detector de rostros
+  face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-  cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+  while (True):
+    ret, frame = camera.read()
+    if (ret == False):
+      break
 
-  faceClassif = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+    gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_classifier.detectMultiScale(gray_frame, 1.3, 5)
 
-  while True:
-    ret,frame = cap.read()
-    if ret == False: break
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    auxFrame = gray.copy()
+    for (pos_x, pos_y, width, height) in faces:
+      current_face = gray_frame[pos_y : pos_y + height, pos_x : pos_x + width]
+      current_face = cv2.resize(current_face, emotions.DIMENSIONS, interpolation = cv2.INTER_CUBIC)
+      result = model.predict(current_face)
 
-    nFrame = cv2.hconcat([frame, np.zeros((480,300,3),dtype=np.uint8)])
-    faces = faceClassif.detectMultiScale(gray,1.3,5)
+      label = result[0]
+      value = result[1]
 
-    for (x,y,w,h) in faces:
-      rostro = auxFrame[y:y+h,x:x+w]
-      rostro = cv2.resize(rostro,(150,150),interpolation= cv2.INTER_CUBIC)
-      result = emotion_recognizer.predict(rostro)
+      cv2.putText(frame, '{}'.format(result), (pos_x, pos_y - 5), 1, 1.3, (255, 255, 0), 1, cv2.LINE_AA)
 
-      cv2.putText(frame,'{}'.format(result),(x,y-5),1,1.3,(255,255,0),1,cv2.LINE_AA)
+      if value < limit:
+        cv2.putText(frame, '{}'.format(emotions.ALL[label]), (pos_x, pos_y - 25), 2, 1.1, (0, 255, 0), 1, cv2.LINE_AA)
+        cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 255, 0), 2)
+      else:
+        cv2.putText(frame, 'No identificado', (pos_x, pos_y - 20), 2, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
+        cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 0, 255), 2)
 
-      if method:
-        if result[1] < NUMBER_RESULT:
-          cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
-          cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
-        else:
-          cv2.putText(frame,'No identificado',(x,y-20),2,0.8,(0,0,255),1,cv2.LINE_AA)
-          cv2.rectangle(frame, (x,y),(x+w,y+h),(0,0,255),2)
-          nFrame = cv2.hconcat([frame,np.zeros((480,300,3),dtype=np.uint8)])
-                    
+    cv2.imshow('Frame', frame)
+    key = cv2.waitKey(1)
+    ESCAPE_KEY = 27
+    if key == ESCAPE_KEY:
+      break
 
-    cv2.imshow('nFrame', frame)
-    k = cv2.waitKey(1)
-    if k == 27:
-        break
-
-  cap.release()
+  camera.release()
   cv2.destroyAllWindows()
+
+
+recognition(methods.LBPH)

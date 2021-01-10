@@ -1,4 +1,5 @@
 dirSaveFiles=models
+rm -r ${dirSaveFiles}
 mkdir ${dirSaveFiles}
 
 # FICHER -> https://drive.google.com/file/d/1neSH23XUAvqdSDHNDq5T47mPoLmsz8yM/view?usp=sharing

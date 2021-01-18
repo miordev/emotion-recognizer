@@ -64,7 +64,7 @@ def show_frame(frame):
 #Windows attributes
 window = Tk()
 window.title("Nombre de la app")
-filename = ImageTk.PhotoImage(file = "assets/background.jpeg")
+filename = ImageTk.PhotoImage(file = "assets/background.jpg")
 windowWidth = filename.width()
 windowHeight = filename.height()
 

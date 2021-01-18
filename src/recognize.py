@@ -1,4 +1,6 @@
+import recognition_model
 import cv2
+import constants_recognition
 import os
 import numpy as np
 from tkinter import * 
@@ -7,7 +9,6 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 import time as tm
 import time
-
 
 #constant
 METHODS = ("EigenFaces", "LBPH", "FisherFaces")
@@ -77,62 +78,43 @@ def begin():
     button.place(x=375, y=280)
 
 def reconocimiento():
-  
-  NUMBER_RESULT = 0
-  # ----------- Métodos usados para el entrenamiento y lectura del modelo ----------
+  print(method)
 
-  if method == 'EigenFaces': 
-    emotion_recognizer = cv2.face.EigenFaceRecognizer_create()
-    NUMBER_RESULT = 5700
-  if method == 'FisherFaces': 
-    emotion_recognizer = cv2.face.FisherFaceRecognizer_create()
-    NUMBER_RESULT = 500
-  if method == 'LBPH': 
-    emotion_recognizer = cv2.face.LBPHFaceRecognizer_create()
-    NUMBER_RESULT = 60
+  ret, frame = cap.read()
+  if (ret == False):
+    return
 
-  emotion_recognizer.read('../models/model'+method+'.xml')
+  gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+  faces = face_classifier.detectMultiScale(gray_frame, 1.3, 5)
 
-  # --------------------------------------------------------------------------------
-  dataPath = '../data' #Cambia a la ruta donde hayas almacenado Data
-  imagePaths = os.listdir(dataPath)
+  for (pos_x, pos_y, width, height) in faces:
+    current_face = gray_frame[pos_y : pos_y + height, pos_x : pos_x + width]
+    current_face = cv2.resize(current_face, constants_recognition.DIMENSIONS, interpolation = cv2.INTER_CUBIC)
+    result = model.predict(current_face)
 
-  faceClassif = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_default.xml')
+    label = result[0]
+    value = result[1]
 
-  while True:
-    ret,frame = cap.read()
-    if ret == False: break
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    auxFrame = gray.copy()
+    cv2.putText(frame, '{}'.format(result), (pos_x, pos_y - 5), 1, 1.3, (255, 255, 0), 1, cv2.LINE_AA)
 
-    nFrame = cv2.hconcat([frame, np.zeros((480,300,3),dtype=np.uint8)])
-    faces = faceClassif.detectMultiScale(gray,1.3,5)
+    if value < limit:
+      cv2.putText(frame, '{}'.format(constants_recognition.EMOTIONS[label]), (pos_x, pos_y - 25), 2, 1.1, (0, 255, 0), 1, cv2.LINE_AA)
+      cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 255, 0), 2)
+    else:
+      cv2.putText(frame, 'No identificado', (pos_x, pos_y - 20), 2, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
+      cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 0, 255), 2)
 
-    for (x,y,w,h) in faces:
-      rostro = auxFrame[y:y+h,x:x+w]
-      rostro = cv2.resize(rostro,(48,48),interpolation= cv2.INTER_CUBIC)
-      result = emotion_recognizer.predict(rostro)
-
-      cv2.putText(frame,'{}'.format(result),(x,y-5),1,1.3,(255,255,0),1,cv2.LINE_AA)
-
-      if method:
-        if result[1] < NUMBER_RESULT:
-          cv2.putText(frame,'{}'.format(imagePaths[result[0]]),(x,y-25),2,1.1,(0,255,0),1,cv2.LINE_AA)
-          cv2.rectangle(frame, (x,y),(x+w,y+h),(0,255,0),2)
-        else:
-          cv2.putText(frame,'No identificado',(x,y-20),2,0.8,(0,0,255),1,cv2.LINE_AA)
-          cv2.rectangle(frame, (x,y),(x+w,y+h),(0,0,255),2)
-          nFrame = cv2.hconcat([frame,np.zeros((480,300,3),dtype=np.uint8)])
-                    
-
-    cv2.imshow('nFrame', frame)
-    k = cv2.waitKey(1)
-    if k == 27:
-        break
-
-  cap.release()
-  cv2.destroyAllWindows()
-
+  title_method.place_forget()
+  combobox_methods.place_forget()
+  title_way.place_forget()
+  combobox_ways.place_forget()
+  button.place_forget()
+    
+  frameCap  = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+  imgtk = ImageTk.PhotoImage(image = Image.fromarray(frameCap))
+  gif_label.configure(image=imgtk)
+  root.update()
+  gif_label.after(1, reconocimiento())
   
 
 def run():
@@ -149,6 +131,14 @@ def run():
     if way == "Video":
         print("No implementado aún")
     if way == "Real time":
+        global model 
+        model = recognition_model.load(method)
+        global limit
+        limit = recognition_model.get_limit(method)
+
+        # Detector de rostros
+        global face_classifier
+        face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         reconocimiento()
         return
 
@@ -159,3 +149,4 @@ animation(count)
 
 root.mainloop()
 
+# main(constants_recognition.EIGEN_FACES)

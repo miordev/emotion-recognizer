@@ -1,6 +1,5 @@
-import entrenando, reconocimientoEmociones
-
-METHOD = ''
+import recognize
+import constants
 
 def menu():
   print("Elija el método de entrenamiento")
@@ -9,17 +8,16 @@ def menu():
   print("3 -> FisherFaces")
 
   option_method = int(input())
+  METHOD = ''
+
   if option_method == 1:
-      METHOD = "EigenFaces"
+    METHOD = constants.EIGEN_FACES
   if option_method == 2:
-      METHOD = "LBPH"
+    METHOD = constants.LBPH
   if option_method == 3:
-      METHOD = "FisherFaces"
+    METHOD = constants.FISHER_FACES
   
-  entrenando.obtenerModelo(METHOD, entrenando.facesData, entrenando.labels)
-
-  reconocimientoEmociones.reconocimiento(METHOD)
-
+  recognize.main(METHOD)
 
 
 menu()

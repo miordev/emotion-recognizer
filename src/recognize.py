@@ -6,9 +6,9 @@ import numpy as np
 from tkinter import * 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import ImageTk, Image
-import time as tm
-import time
+from io import BytesIO
 
 #constant
 METHODS = ("EigenFaces", "LBPH", "FisherFaces")
@@ -17,7 +17,7 @@ WAYS = ("Image", "Video", "Real time")
 
 root = tk.Tk()
 root.title("Nombre de la app")
-root.resizable(0,0)
+#root.resizable(0,0)
 file="assets/frame1_modified2.gif"
 
 info = Image.open(file)
@@ -78,16 +78,18 @@ def begin():
     button.place(x=375, y=280)
 
 def reconocimiento():
-  print(method)
-
-  ret, frame = cap.read()
-  if (ret == False):
-    return
+  if (way == "Image"):
+    frame = cv2.imdecode(np.fromstring(image_bytes, np.uint8), cv2.IMREAD_COLOR)
+  else:
+    ret, frame = cap.read()
+    if (ret == False):
+      return
 
   gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces = face_classifier.detectMultiScale(gray_frame, 1.3, 5)
 
   for (pos_x, pos_y, width, height) in faces:
+    print("Estoy entrando en el for")
     current_face = gray_frame[pos_y : pos_y + height, pos_x : pos_x + width]
     current_face = cv2.resize(current_face, constants_recognition.DIMENSIONS, interpolation = cv2.INTER_CUBIC)
     result = model.predict(current_face)
@@ -104,41 +106,68 @@ def reconocimiento():
       cv2.putText(frame, 'No identificado', (pos_x, pos_y - 20), 2, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
       cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 0, 255), 2)
 
-  title_method.place_forget()
-  combobox_methods.place_forget()
-  title_way.place_forget()
-  combobox_ways.place_forget()
-  button.place_forget()
-    
   frameCap  = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
   imgtk = ImageTk.PhotoImage(image = Image.fromarray(frameCap))
-  gif_label.configure(image=imgtk)
-  root.update()
-  gif_label.after(1, reconocimiento())
+  gif_label.configure(image = imgtk)
+  if (way == "Real time"):
+    root.update()
+    gif_label.after(1, reconocimiento())
   
+def browse(): 
+  fln = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Image File", filetypes=(("JPG File", "*.jpg"), ("PNG File", "*.png"), ("All Files", "*.*")))
+  global image_bytes
+  imgUp = Image.open(fln)
+  buf = BytesIO()
+
+  # Save the image as jpeg to the buffer
+  imgUp.save(buf, 'jpeg')
+
+  # Rewind the buffer's file pointer
+  buf.seek(0)
+
+  # Read the bytes from the buffer
+  image_bytes = buf.read()
+
+  # Close the buffer
+  buf.close()
+
+  reconocimiento()
 
 def run():
+    global way
     way = combobox_ways.get()
     global method
     method = combobox_methods.get()
     print("way: ", way)
     print("method: ", method)
   
+    
     global cap 
     cap = cv2.VideoCapture(-1)
+
+    title_method.place_forget()
+    combobox_methods.place_forget()
+    title_way.place_forget()
+    combobox_ways.place_forget()
+    button.place_forget()
+
+    global face_classifier
+    face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    global model 
+    model = recognition_model.load(method)
+    global limit
+    limit = recognition_model.get_limit(method)
+
     if way == "Image":
-        print("No implementado aún")
+      gif_label.place_forget()
+      label = Label(root)
+      label.pack(side=TOP)
+      btn =  tk.Button(root, text="Browse Image", command=browse)
+      btn.pack(side=BOTTOM, pady=15)
     if way == "Video":
         print("No implementado aún")
     if way == "Real time":
-        global model 
-        model = recognition_model.load(method)
-        global limit
-        limit = recognition_model.get_limit(method)
-
         # Detector de rostros
-        global face_classifier
-        face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         reconocimiento()
         return
 

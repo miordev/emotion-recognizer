@@ -13,8 +13,6 @@ from io import BytesIO
 #constant
 METHODS = ("EigenFaces", "LBPH", "FisherFaces")
 WAYS = ("Image", "Video", "Real time")
-
-
 root = tk.Tk()
 root.title("Nombre de la app")
 #root.resizable(0,0)
@@ -76,10 +74,21 @@ def begin():
     global button
     button = Button(root, text = "click", command = run, activebackground="#A239CA", bg="#4717F6")
     button.place(x=375, y=280)
-
+  
 def reconocimiento():
   if (way == "Image"):
-    frame = cv2.imdecode(np.fromstring(image_bytes, np.uint8), cv2.IMREAD_COLOR)
+    fln = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Image File", filetypes=(("JPG File", "*.jpg"), ("PNG File", "*.png"), ("JPEG", "*.jpeg")))
+    frame = cv2.imread(fln)
+    img = Image.open(fln)
+    img = img.resize((450, 350), Image. ANTIALIAS)
+    img = ImageTk.PhotoImage(image = img)
+  elif (way == "Video"): 
+    if (not(cap.isOpened())):
+      return 
+    
+    ret, frame = cap.read()
+    if (ret == False):
+      return                                                                                                                   
   else:
     ret, frame = cap.read()
     if (ret == False):
@@ -87,9 +96,8 @@ def reconocimiento():
 
   gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
   faces = face_classifier.detectMultiScale(gray_frame, 1.3, 5)
-
+  text_emotion = "Indeterminado"
   for (pos_x, pos_y, width, height) in faces:
-    print("Estoy entrando en el for")
     current_face = gray_frame[pos_y : pos_y + height, pos_x : pos_x + width]
     current_face = cv2.resize(current_face, constants_recognition.DIMENSIONS, interpolation = cv2.INTER_CUBIC)
     result = model.predict(current_face)
@@ -97,41 +105,32 @@ def reconocimiento():
     label = result[0]
     value = result[1]
 
-    cv2.putText(frame, '{}'.format(result), (pos_x, pos_y - 5), 1, 1.3, (255, 255, 0), 1, cv2.LINE_AA)
+    text_emotion = constants_recognition.EMOTIONS[label]
 
-    if value < limit:
-      cv2.putText(frame, '{}'.format(constants_recognition.EMOTIONS[label]), (pos_x, pos_y - 25), 2, 1.1, (0, 255, 0), 1, cv2.LINE_AA)
-      cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 255, 0), 2)
-    else:
-      cv2.putText(frame, 'No identificado', (pos_x, pos_y - 20), 2, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
-      cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 0, 255), 2)
+    if (way == "Video" or way == "Real time"):
+      cv2.putText(frame, '{}'.format(result), (pos_x, pos_y - 5), 1, 1.3, (255, 255, 0), 1, cv2.LINE_AA)
 
-  frameCap  = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-  imgtk = ImageTk.PhotoImage(image = Image.fromarray(frameCap))
-  gif_label.configure(image = imgtk)
-  if (way == "Real time"):
+      if value < limit:
+        cv2.putText(frame, '{}'.format(constants_recognition.EMOTIONS[label]), (pos_x, pos_y - 25), 2, 1.1, (0, 255, 0), 1, cv2.LINE_AA)
+        cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 255, 0), 2)
+      else:
+        cv2.putText(frame, 'No identificado', (pos_x, pos_y - 20), 2, 0.8, (0, 0, 255), 1, cv2.LINE_AA)
+        cv2.rectangle(frame, (pos_x, pos_y), (pos_x + width, pos_y + height), (0, 0, 255), 2)
+
+  if (way == "Image"):
+    gif_label.place_forget()
+    lb.configure(text = "Emotion: ")
+    emotion.configure(text = text_emotion)
+    img_label.configure(image = img)
+    img_label.update()
+    img_label.after(5000)
+
+  if (way == "Real time" or way == "Video"):
+    frameCap  = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    imgtk = ImageTk.PhotoImage(image = Image.fromarray(frameCap))
+    gif_label.configure(image = imgtk)
     root.update()
-    gif_label.after(1, reconocimiento())
-  
-def browse(): 
-  fln = filedialog.askopenfilename(initialdir=os.getcwd(), title="Select Image File", filetypes=(("JPG File", "*.jpg"), ("PNG File", "*.png"), ("All Files", "*.*")))
-  global image_bytes
-  imgUp = Image.open(fln)
-  buf = BytesIO()
-
-  # Save the image as jpeg to the buffer
-  imgUp.save(buf, 'jpeg')
-
-  # Rewind the buffer's file pointer
-  buf.seek(0)
-
-  # Read the bytes from the buffer
-  image_bytes = buf.read()
-
-  # Close the buffer
-  buf.close()
-
-  reconocimiento()
+    gif_label.after(0, reconocimiento())
 
 def run():
     global way
@@ -140,10 +139,6 @@ def run():
     method = combobox_methods.get()
     print("way: ", way)
     print("method: ", method)
-  
-    
-    global cap 
-    cap = cv2.VideoCapture(-1)
 
     title_method.place_forget()
     combobox_methods.place_forget()
@@ -157,19 +152,31 @@ def run():
     model = recognition_model.load(method)
     global limit
     limit = recognition_model.get_limit(method)
+    global cap
 
-    if way == "Image":
-      gif_label.place_forget()
-      label = Label(root)
-      label.pack(side=TOP)
-      btn =  tk.Button(root, text="Browse Image", command=browse)
-      btn.pack(side=BOTTOM, pady=15)
-    if way == "Video":
-        print("No implementado aún")
-    if way == "Real time":
-        # Detector de rostros
-        reconocimiento()
-        return
+    if (way == "Image"):
+      gif_label.configure(image = "")
+      global lb
+      lb = tk.Label(root, text = "")
+      lb.pack(side=TOP)
+      global emotion
+      emotion = tk.Label(root, text = "")
+      emotion.pack()
+      global img_label
+      img_label = tk.Label(root)
+      img_label.pack()
+      btnImage =  tk.Button(root, text="Browse Image", command=reconocimiento)
+      btnImage.pack(side=BOTTOM, pady=15)
+
+    if (way == "Video"):
+      gif_label.configure(image = "")
+      fln = filedialog.askopenfilename()  
+      cap = cv2.VideoCapture(fln)
+      reconocimiento()
+
+    if (way == "Real time"):
+      cap = cv2.VideoCapture(-1)
+      reconocimiento()
 
 gif_label = tk.Label(root)
 gif_label.pack()

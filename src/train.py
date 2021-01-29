@@ -1,5 +1,5 @@
 import recognition_model
-import constants
+import constants_recognition
 import os
 import cv2
 
@@ -9,8 +9,8 @@ def get_data():
   labels = []
   
   index_label = 0
-  for emotion_name in constants.EMOTIONS:
-    emotion_path = os.path.join(constants.DATA_PATH, emotion_name)
+  for emotion_name in constants_recognition.EMOTIONS:
+    emotion_path = os.path.join(constants_recognition.DATA_PATH, emotion_name)
 
     for face_name in os.listdir(emotion_path):
       labels.append(index_label)
@@ -37,4 +37,4 @@ def main(method_name):
   recognition_model.save(method_name, model)
 
 
-# main(constants.FISHER_FACES)
+# main(constants_recognition.FISHER_FACES)

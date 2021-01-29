@@ -60,6 +60,5 @@ def main(method_name):
   print(caras)
 
 
-
-
-main(constants_recognition.LBPH)
+# Descomenta esta línea con el modelo que quieres
+# main(constants_recognition.LBPH)

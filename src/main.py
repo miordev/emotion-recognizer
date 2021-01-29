@@ -5,7 +5,7 @@ def help():
   print('Ejecute el programa con uno de los siguientes argumentos')  
   print('\t-h --help \t\t Ayuda para ejecutar el programa')  
   print('\t-i --interface\t\t Ejecutar la interface del programa')  
-  print('\t-t -test\t\t Ejecutar la validación de los modelos')  
+  print('\t-t --test\t\t Ejecutar la validación de los modelos')  
 
 def main():
   if len(sys.argv) != 2:
@@ -22,6 +22,5 @@ def main():
 
   else:
     return help()  
-
     
 main()

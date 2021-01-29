@@ -27,5 +27,7 @@ DIMENSIONS = (HORIZONTAL_DIMENSION, VERTICAL_DIMENSION)
 # ----- Rutas -------
 DIRNAME = os.path.dirname(__file__)
 
-MODELS_PATH = os.path.join(DIRNAME, '..models')
-DATA_PATH = os.path.join(DIRNAME, '../data')
+MODELS_PATH = os.path.join(DIRNAME, '..', 'models')
+DATA_PATH = os.path.join(DIRNAME, '..', 'data')
+
+DATA_TEST_PATH = os.path.join(DIRNAME, '..', 'data', 'test')

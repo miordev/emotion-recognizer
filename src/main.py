@@ -3,7 +3,7 @@ import sys
 
 def help():
   print('Ejecute el programa con uno de los siguientes argumentos')  
-  print('\t-t --help \t\t Ayuda para ejecutar el programa')  
+  print('\t-h --help \t\t Ayuda para ejecutar el programa')  
   print('\t-i --interface\t\t Ejecutar la interface del programa')  
   print('\t-t -test\t\t Ejecutar la validación de los modelos')  
 
@@ -18,7 +18,7 @@ def main():
     system('python test.py')
   
   elif sys.argv[1] == "--interface" or sys.argv[1] == "-i":
-    system('python prueba2.py')
+    system('python recognize.py')
 
   else:
     return help()  

@@ -14,7 +14,7 @@ from io import BytesIO
 METHODS = ("EigenFaces", "LBPH", "FisherFaces")
 WAYS = ("Image", "Video", "Real time")
 root = tk.Tk()
-root.title("Nombre de la app")
+root.title("Odalig")
 #root.resizable(0,0)
 file="assets/frame1_modified2.gif"
 

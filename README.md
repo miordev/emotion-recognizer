@@ -17,14 +17,16 @@
 - [ Lenguaje ](#language)
 - [ Preparación ](#preparation)
 - [ Ejecución ](#execution)
+- [ Pruebas ](#test)
 - [ Autores ](#authors)
 
 
 <a name="directories"></a>
 ## 📁 **Directorios** 
 
-* bin ➡️ Códigó fuente
-* code ➡️ Ejecutables 
+* bin ➡️ Script para descargar modelos
+* csv ➡️ Clasificación de las fotos con sus emociones 
+* code ➡️ Código fuente 
 
 <a name="objective"></a>
 ## 🎯 **Objetivo** 
@@ -56,6 +58,12 @@ Se debe instalar las dependencias, que se encuentran en el fichero [requirements
 ../<directorio-local>/emotion-recognizer » pip install -r requirements.txt
 ```
 
+Luego se pueden cargar los modelos con el siguiente comando, lo cual los descargará desde una carpeta comprimida en google drive
+
+```bash
+../<directorio-local>/emotion-recognizer » ./bin/models.sh
+```
+
 <a name="execution"></a>
 ## 🚀 **Ejecución**  
 
@@ -63,10 +71,36 @@ Para ejecutarlo desde terminal, se debe ejecuta el siguiente comando
 
 ```bash
 ../<directorio-local>/emotion-recognizer » cd src
-../<directorio-local>/emotion-recognizer/src » python recognize.py
+../<directorio-local>/emotion-recognizer/src » python main.py
+```
+
+Lo cual mostrará el siguinete menú, donde cada argumento indica como se debe ejecutar el programa
+
+```bash
+Run the program with one of the following arguments
+  -h --help                Help to run the programme
+  -i --interface           Run the program interface
+  -t --test                Execute the validation of the models
+```
+
+Por ejemplo, para ejecutar el programa con la interfáz de usuario sería
+
+```bash
+../<directorio-local>/emotion-recognizer/src » python main.py -i
 ```
 
 En este momento se abre la interfáz gráfico y se selecciona el método deseado
+
+<a name="test"></a>
+## ⚗️ **Pruebas** 
+
+Para ejecutar las pruebas se debe ejecutar el programa con el siguiente comando
+
+```bash
+../<directorio-local>/emotion-recognizer/src » python main.py -t
+```
+
+Lo cual ejecutará el modelo seleccionado con distintos valores de filtros y buscará el mejor valor y porcentaje para el reconocimiento de rostros 
 
 <a name="authors"></a>
 ## ✒️ **Autores** 

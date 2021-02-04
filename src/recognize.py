@@ -45,7 +45,7 @@ def something():
     gif_label.configure(image = start)
     global button_label
     button_label = Button(root, image = button, command = begin, borderwidth = 0)
-    button_label.place(x=270, y=410)
+    button_label.place(x=260, y=410)
 
 def begin():
     button_label.place_forget()
